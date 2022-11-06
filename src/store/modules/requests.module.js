@@ -1,75 +1,85 @@
-import axios from 'axios'
+import axios from "axios";
 
 const baseURL = "https://gogoanime.consumet.org/";
 
-
 export default {
   state: {
-    recentEpsiods: {},
+    recentEpsiods: [],
     animeDetails: {},
-    urls: {}
+    urls: {},
   },
   getters: {
     getLatestAnimeList(state) {
-      return state.recentEpsiods
+      return state.recentEpsiods;
     },
     getAnimeDetails(state) {
-      return state.animeDetails
+      return state.animeDetails;
     },
     getEpisodeUrls(state) {
-      return state.urls
-    }
+      return state.urls;
+    },
   },
   mutations: {
-    SAVE_RECENT_EPISODES (state, episodes) {
-      state.recentEpsiods = episodes;
+    SAVE_RECENT_EPISODES(state, episodes) {
+      if (!state.recentEpsiods.length) {
+        state.recentEpsiods = episodes;
+      } else {
+        state.recentEpsiods = state.recentEpsiods.concat(episodes);
+      }
+
+      console.log(state.recentEpsiods);
     },
-    SAVE_ANIME_DETAILS (state, animeDetails) {
+    SAVE_ANIME_DETAILS(state, animeDetails) {
       state.animeDetails = animeDetails;
     },
-    SAVE_EPISODE_URLS (state, urls) {
+    SAVE_EPISODE_URLS(state, urls) {
       state.urls = urls;
     },
-    RESET_DETAILS (state) {
-      this.animeDetails = {};
-      this.urls = {};
-    }
+    RESET_DETAILS(state) {
+      state.recentEpsiods = []
+    },
   },
   actions: {
-    resetAnimeDetails ({ commit }) {
-      commit("RESET_DETAILS");
-    },
-    async loadLatestEpisodes({ commit }) {
-      await axios.get(baseURL + 'recent-release')
-      .then(res => {
-        commit("SAVE_RECENT_EPISODES", res.data)
-      })
-      .catch(err => {
-        console.log(err);
-      })
+    async loadLatestEpisodes({ commit }, page) {
+      console.log(baseURL + "recent-release?type=1:[" + page.toString());
+      await axios
+        .get(baseURL + "recent-release?type=1&page=" + page.toString())
+        .then((res) => {
+          commit("SAVE_RECENT_EPISODES", res.data);
+          commit("SET_REQUEST_PAGE", { status: true });
+        })
+        .catch((err) => {
+          commit("SET_REQUEST_PAGE", { status: true });
+          console.log(err);
+        });
     },
     async loadAnimeDetails({ commit }, animeName) {
       return new Promise(async (resolve, reject) => {
-        await axios.get(baseURL + "anime-details/" + animeName)
-        .then(res => {
-          commit("SAVE_ANIME_DETAILS", res.data)
-          resolve(res.data)
-        })
-        .catch(err => {
-          console.log(err);
-          reject(err)
-        })
-      })
+        await axios
+          .get(baseURL + "anime-details/" + animeName)
+          .then((res) => {
+            commit("SAVE_ANIME_DETAILS", res.data);
+            resolve(res.data);
+          })
+          .catch((err) => {
+            console.log(err);
+            reject(err);
+          });
+      });
     },
     async loadAnimeWatchingUrls({ commit }, episodeId) {
-      console.log("id : ", episodeId);
-      await axios.get(baseURL + "vidcdn/watch/" + episodeId)
-      .then(res => {
-        commit("SAVE_EPISODE_URLS", res.data)
-      })
-      .catch(err => {
-        console.log(err);
-      })
-    }
-  }
-}
+      return new Promise(async (resolve, reject) => {
+        await axios
+          .get(baseURL + "vidcdn/watch/" + episodeId)
+          .then((res) => {
+            commit("SAVE_EPISODE_URLS", res.data);
+            resolve(res.data);
+          })
+          .catch((err) => {
+            console.log(err);
+            reject(err);
+          });
+      });
+    },
+  },
+};

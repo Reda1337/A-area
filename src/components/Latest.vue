@@ -2,9 +2,9 @@
   <div class="container mx-auto">
     <div class="mt-10 flex flex-wrap border border-black">
       <div class="ml-3 grow-0 w-[500px]">
-        <h1 class="font-mono text-5xl text-white">Latest Episodes</h1>
+        <h1 class="font-mono text-5xl text-white">Home Area</h1>
       </div>
-      <div
+      <!-- <div
         class="ml-3 flex mt-10 lg:mt-0 justify-start lg:justify-end grow relatve items-end"
       >
         <div class="relative">
@@ -14,10 +14,16 @@
             class="border border-blue-900 w-72 h-10 focus:outline focus:outline-blue-500 pl-7 rounded"
           />
         </div>
-      </div>
+      </div> -->
+    </div>
+    <div class="mt-20 ml-2 text-white flex flex-row">
+      <p class="mr-2 p-4 bg-blue-700 rounded text-2xl cursor-pointer" @click="changeChoice = false">Latest</p>
+      <p class="mr-2 p-4 bg-blue-700 rounded text-2xl cursor-pointer" @click="changeChoice = true">Popular</p>
     </div>
     <div
-      class="ml-3 overflow-y-scroll content-start mt-20 grid gap-3 sm:grid-cols-2 sm:gap-3 md:grid-cols-4 md:gap-2 lg:grid-cols-5 lg:gap-2 h-screen"
+      v-show="changeChoice === false"
+      id="scroll"
+      class="mb-20 ml-3 overflow-y-scroll content-start grid gap-3 sm:grid-cols-2 sm:gap-3 md:grid-cols-4 md:gap-2 lg:grid-cols-5 lg:gap-2 h-screen"
     >
       <div
         class="cursor-pointer bg-gray-800 rounded-[10px]"
@@ -41,10 +47,13 @@
         </div>
       </div>
     </div>
-    <!-- <div class="test-player-wrap">
-      <vue3-video-player :core="HLSCore" src="https://wwwx15.gogocdn.stream/videos/hls/o2CH8Rw7LZmT13b1nY2KSg/1667658162/194654/9f11c469545a167de45769fe76e00090/ep.6.1667642953.m3u8" title="test">
-      </vue3-video-player>
-    </div> -->
+    <div v-show="changeChoice" class="">
+      <div class="text-white grid lg:grid-cols-3 gap-3">
+        <div >4</div>
+        <div class="col-span-2">4</div>
+      </div>
+      
+    </div>
   </div>
 </template>
 
@@ -55,6 +64,8 @@ export default {
   data() {
     return {
       HLSCore,
+      page: 1,
+      changeChoice: false
     };
   },
   computed: {
@@ -62,23 +73,50 @@ export default {
       const data = this.$store.getters.getLatestAnimeList;
       return data;
     },
+    requestPage() {
+      const data = this.$store.getters.getRequestPage;
+      return data;
+    },
   },
-  created() {
-    this.$store.dispatch("loadLatestEpisodes");
+  async created() {
+    await this.$store.dispatch("loadLatestEpisodes", this.page);
+  },
+  mounted() {
+    const element = document.getElementById("scroll");
+    element.addEventListener("scroll", this.onScrollEnd);
   },
   methods: {
+    async onScrollEnd(e) {
+      const target = e.target;
+      if (
+        target.scrollTop + 20 >= target.scrollHeight - target.offsetHeight &&
+        this.requestPage
+      ) {
+        try {
+          await this.$store.commit("SET_REQUEST_PAGE", { status: false });
+          await this.$store.dispatch("loadLatestEpisodes", this.page + 1);
+          this.page++;
+        } catch (error) {
+          console.log(error);
+        }
+      }
+    },
     async watchEpisode(animeId, episodeId) {
-      this.$store.dispatch("DISPLAY_LOADER", {show: true});
+      this.$store.dispatch("DISPLAY_LOADER", { show: true });
       try {
         await this.$store.dispatch("loadAnimeDetails", animeId);
         await this.$store.dispatch("loadAnimeWatchingUrls", episodeId);
-        this.$store.dispatch("DISPLAY_LOADER", {show: false});
+        this.$store.dispatch("DISPLAY_LOADER", { show: false });
         this.$router.push({ name: "watch", params: { animeId, episodeId } });
       } catch (e) {
-        this.$store.dispatch("DISPLAY_LOADER", {show: false});
+        this.$store.dispatch("DISPLAY_LOADER", { show: false });
         console.log(e);
       }
     },
+  },
+  unmounted() {
+    window.removeEventListener("scroll", this.onScrollEnd);
+    this.$store.commit("RESET_DETAILS")
   },
 };
 </script>

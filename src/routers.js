@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import Home from './components/Home.vue'
-import watchAnime from './components/watchAnime.vue'
+import WatchAnime from './components/watchAnime.vue'
+import Search from  './components/Animes.vue'
 
 const routes = [
   {
@@ -11,7 +12,12 @@ const routes = [
   {
     path: '/watch/:animeId/:episodeId',
     name: 'watch',
-    component: watchAnime
+    component: WatchAnime
+  },
+  {
+    path: '/watch/:tag',
+    name: 'search',
+    component: Search
   }
 ]
 

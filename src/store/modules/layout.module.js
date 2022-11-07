@@ -2,6 +2,8 @@ export default {
   state: {
     navItem: 'Latest',
     requestPage: true,
+    requestPopular: true,
+    showVideo: true,
   },
   getters: {
     getNavItem (state) {
@@ -9,6 +11,12 @@ export default {
     },
     getRequestPage (state) {
       return state.requestPage
+    },
+    getPopularPage (state) {
+      return state.requestPopular
+    },
+    getShowVideo(state) {
+      return state.showVideo
     }
   },
   mutations: {
@@ -17,6 +25,12 @@ export default {
     },
     SET_REQUEST_PAGE(state, payload) {
       state.requestPage = payload.status
+    },
+    SET_POPULAR_REQUEST(state, payload) {
+      state.requestPopular = payload.status
+    },
+    SET_SHOW_VIDEO(state, payload) {
+      state.showVideo = payload.status
     }
   },
   actions: {

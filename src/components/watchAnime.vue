@@ -39,7 +39,7 @@
         </div>
       </div>
     </div>
-    <div class="mt-20 ml-20  mb-20 grid lg:grid-cols-6 gap-1">
+    <div v-if="showVideo === true" class="mt-20 ml-20  mb-20 grid lg:grid-cols-6 gap-1">
       <div v-if="bkp === false" class="col-span-5">
         <vue3-video-player :core="HLSCore" :src="watchFile" :title="$route.params.episodeId">
         </vue3-video-player>
@@ -95,6 +95,10 @@ export default {
     },
     episodeUrls () {
       const data = this.$store.getters.getEpisodeUrls;
+      return data
+    },
+    showVideo() {
+      const data = this.$store.getters.getShowVideo;
       return data
     }
   },

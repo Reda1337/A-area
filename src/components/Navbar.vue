@@ -6,9 +6,8 @@ export default {
       active: false,
       clicked: 0,
       items: [
-        {text: 'Latest', icon: 'autorenew'},
-        {text: 'Ranking', icon: 'chevron-triple-up'},
-        {text: 'Inventory', icon: 'eye-plus-outline'}
+        {text: 'Latest', icon: 'home', direct: '/'},
+        
       ]
     }
   },
@@ -17,10 +16,8 @@ export default {
       this.active = !this.active
     },
     setClicked(index, item) {
-      console.log("item ", item);
       this.clicked = index;
       this.$store.dispatch("updateNavItem", { text: item });
-      console.log(this.$store.getters.getNavItem);
     }
   },
 }
@@ -47,8 +44,11 @@ export default {
             :key="index"
             :class="[index === clicked ? 'text-black bg-white': 'text-gray-300 hover:bg-gray-500']"
           >
-            <mdicon :name="icon" />
-            <h1 :class="[active ? '' : 'scale-0']" class="duration-300">{{ text }}</h1>
+            <router-link to="/">
+              <mdicon :name="icon" />
+              <h1 :class="[active ? '' : 'scale-0']" class="duration-300">{{ text }}</h1>
+
+            </router-link>
           </li>
         </ul>
       </div>

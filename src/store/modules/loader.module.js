@@ -14,7 +14,6 @@ export default {
   },
   actions: {
     DISPLAY_LOADER({ commit }, data) {
-      console.log("-->", data);
       commit('SET_LOADER', data);
     }
   }
